@@ -1,10 +1,11 @@
 import React, {Component} from 'react'
 import styles from './Quiz.module.css'
 import ActiveQuize from '../../components/ActiveQuiz/ActiveQuiz'
-
+import FinishedQuiz from '../../components/FinishedQuiz/FinishedQuiz'
 
 class Quiz extends Component {
     state={ 
+        isFinished: true,
         activeQuestion: 0,
         answerState: null, //текущий клик пользователя-правильно или нет {[id]: 'success' 'error'}
         quiz: [
@@ -31,8 +32,16 @@ class Quiz extends Component {
         ]
     }
 
-    onAnswerClickHandler = (answerId) => {
+    onAnswerClickHandler = answerId => {
         console.log('Answer Id: ',answerId)
+
+        if (this.state.answerState) {
+            const key = Object.keys(this.state.answerState)[0]
+            if (this.state.answerState[key]==='success'){  //если польз-ль 2 раза щелкнул на один ответ
+                return
+            }
+        }
+         
         const question = this.state.quiz[this.state.activeQuestion]
 
         if (question.rightAnswerId === answerId) {
@@ -44,9 +53,14 @@ class Quiz extends Component {
             const timeout = window.setTimeout(() => {
                 if (this.isQuizFinished()) {
                     console.log('Finished')
+                    this.setState({
+                        isFinished: true
+                    })
+
                 } else {
                     this.setState({
-                        activeQuestion: this.state.activeQuestion + 1
+                        activeQuestion: this.state.activeQuestion + 1,
+                        answerState: null
                     }) 
                 }
                 window.clearTimeout(timeout)
@@ -69,6 +83,10 @@ class Quiz extends Component {
             <div className={styles.Quiz}>
                 <div className={styles.QuizWrapper}>
                     <h1>Ответьте на все вопросы</h1>
+
+                    {
+                    this.state.isFinished ?
+                    <FinishedQuiz /> :
                     <ActiveQuize 
                         // answers={this.state.quiz[0].answers}
                         answers={this.state.quiz[this.state.activeQuestion].answers}
@@ -76,8 +94,11 @@ class Quiz extends Component {
                         onAnswerClick={this.onAnswerClickHandler}
                         quizLength={this.state.quiz.length}
                         answerNumber={this.state.activeQuestion+1}
-                        state={this.state.answerState}
+                        ansState={this.state.answerState}
                         />
+
+                    }                   
+                         
                 </div>
             </div>
         )
