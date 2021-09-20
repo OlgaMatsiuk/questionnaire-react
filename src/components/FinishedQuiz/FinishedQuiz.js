@@ -1,6 +1,7 @@
 import React from 'react'
 import styles from './FinishedQuiz.module.css'
 import Button from '../ui/Button/Button'
+import { Link } from 'react-router-dom'  //как и NavLink только с меньшим функционалом
 
 const FinishedQuiz = props => {
     const successCount = Object.keys(props.results).reduce((total, key) => {
@@ -49,8 +50,9 @@ const FinishedQuiz = props => {
             <div>
                 {/* <button onClick = {props.onRetry}>Повторить</button> */}
         <Button onClick={props.onRetry} type='primary'>Повторить</Button>
-        <Button type='success'>Перейти в список тестов</Button>
-
+        <Link to='/'>
+        <   Button type='success'>Перейти в список тестов</Button>
+        </Link>
             </div>
         </div>
     )

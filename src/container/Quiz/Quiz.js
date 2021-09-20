@@ -2,6 +2,8 @@ import React, {Component} from 'react'
 import styles from './Quiz.module.css'
 import ActiveQuize from '../../components/ActiveQuiz/ActiveQuiz'
 import FinishedQuiz from '../../components/FinishedQuiz/FinishedQuiz'
+import axios from '../../axios/axios-quiz'
+import Loader from '../../components/ui/Loader/Loader'
 
 class Quiz extends Component {
     state={ 
@@ -9,28 +11,30 @@ class Quiz extends Component {
         isFinished: false,
         activeQuestion: 0,
         answerState: null, //текущий клик пользователя-правильно или нет {[id]: 'success' 'error'}
-        quiz: [
-        {
-            rightAnswerId: 3,
-            id: 1,
-            question: 'Какого цвета небо?',
-            answers: [
-                {text: 'Черное', id: 1},
-                {text: 'Красное', id: 2},
-                {text: 'Голубое', id: 3},
-                {text: 'Желтое', id: 4}
-            ]},
-            {
-                rightAnswerId: 3,
-                id: 2,
-                question: 'В каком году основали Санкт-Петербург?',
-                answers: [
-                    {text: '1700', id: 1},
-                    {text: '1702', id: 2},
-                    {text: '1703', id: 3},
-                    {text: '1803', id: 4}
-                ]}
-        ]
+        // quiz: [
+        // {
+        //     rightAnswerId: 3,
+        //     id: 1,
+        //     question: 'Какого цвета небо?',
+        //     answers: [
+        //         {text: 'Черное', id: 1},
+        //         {text: 'Красное', id: 2},
+        //         {text: 'Голубое', id: 3},
+        //         {text: 'Желтое', id: 4}
+        //     ]},
+        //     {
+        //         rightAnswerId: 3,
+        //         id: 2,
+        //         question: 'В каком году основали Санкт-Петербург?',
+        //         answers: [
+        //             {text: '1700', id: 1},
+        //             {text: '1702', id: 2},
+        //             {text: '1703', id: 3},
+        //             {text: '1803', id: 4}
+        //         ]}
+        // ]
+        quiz: [],
+        loading: true
     }
 
     onAnswerClickHandler = answerId => {
@@ -96,6 +100,22 @@ class Quiz extends Component {
         })
     }
 
+    async componentDidMount() {
+        try {
+            const response = await axios.get (`/quizes/${this.props.match.params.id}.json`)
+            const quiz = response.data
+
+            this.setState({
+                quiz,
+                loading: false  
+            })
+        } catch (e) {
+            console.log(e)
+        }
+        console.log('Quiz ID =', this.props.match.params.id)
+    }
+
+
     render() {
         return (
             <div className={styles.Quiz}>
@@ -103,7 +123,9 @@ class Quiz extends Component {
                     <h1>Ответьте на все вопросы</h1>
 
                     {
-                    this.state.isFinished ?
+                    this.state.loading
+                    ? <Loader />
+                    : this.state.isFinished ?
                     <FinishedQuiz 
                         results={this.state.results}
                         quiz={this.state.quiz}
